@@ -1100,6 +1100,8 @@ void gui_settings_controls(std::array<bool, 4>& mapleDevicesChanges, std::array<
 
 	ImGui::Spacing();
 	OptionSlider(T("Mouse sensitivity"), config::MouseSensitivity, 1, 500);
+	OptionSlider(T("Digital to analog ramp time"), config::AnalogRampTime, 0, 500,
+			T("Time in milliseconds for a button mapped to an analog stick to reach full deflection. 0 is instant"), "%d ms");
 #if defined(_WIN32) && !defined(TARGET_UWP)
 	OptionCheckbox(T("Use Raw Input"), config::UseRawInput, T("Supports multiple pointing devices (mice, light guns) and keyboards"));
 #endif

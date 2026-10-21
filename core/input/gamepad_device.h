@@ -253,6 +253,13 @@ private:
 			digitalToAnalogState[port] |= axis;
 		else
 			digitalToAnalogState[port] &= ~axis;
+		if (analogRampTime() <= 0)
+		{
+			// No ramp: full deflection right away, without waiting for the next ramp update
+			const u32 socd = digitalToAnalogState[port] & (NegDir | PosDir);
+			joystick = socd == NegDir ? -32768 : socd == PosDir ? 32767 : 0;
+			return;
+		}
 		rampAnalogState[port] |= NegDir;
 		if (lastAnalogUpdate == 0)
 			lastAnalogUpdate = getTimeMs();
@@ -260,6 +267,7 @@ private:
 
 	s16 (&getTargetArray(DigAnalog axis))[4];
 	void rampAnalog();
+	static int analogRampTime();
 
 	std::string _api_name;
 	int _maple_port;
@@ -276,7 +284,6 @@ private:
 
 	u64 lastAnalogUpdate = 0;
 	u32 rampAnalogState[4] {};
-	static constexpr float AnalogRamp = 32767.f / 100.f;		// 100 ms ramp time
 	std::mutex rampMutex;
 
 	static std::vector<std::shared_ptr<GamepadDevice>> _gamepads;

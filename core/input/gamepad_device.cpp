@@ -19,6 +19,7 @@
 
 #include "gamepad_device.h"
 #include "cfg/cfg.h"
+#include "cfg/option.h"
 #include "stdclass.h"
 #include "ui/gui.h"
 #include "emulator.h"
@@ -864,7 +865,9 @@ void GamepadDevice::rampAnalog()
 		return;
 
 	const u64 now = getTimeMs();
-	const int delta = std::round(static_cast<float>(now - lastAnalogUpdate) * AnalogRamp);
+	const int rampTime = analogRampTime();
+	const int delta = rampTime <= 0 ? 65535
+			: std::round(static_cast<float>(now - lastAnalogUpdate) * 32767.f / rampTime);
 	lastAnalogUpdate = now;
 	for (unsigned port = 0; port < std::size(digitalToAnalogState); port++)
 	{
@@ -897,6 +900,12 @@ void GamepadDevice::rampAnalog()
 			}
 		}
 	}
+}
+
+// Time in ms for a digital input mapped to an analog axis to reach full deflection
+int GamepadDevice::analogRampTime()
+{
+	return config::AnalogRampTime;
 }
 
 void GamepadDevice::RampAnalog()
